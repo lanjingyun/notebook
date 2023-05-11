@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, select, input {
+  outline: none;
+
+}
+svg {
+  display: inline;
+  vertical-align: bottom;
+}
+ol, ul {
+  list-style-type: auto;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    color: white;
+    background: black;
+  }
+}
+
+@layer utilities {
+  .load-black{
+    height: 2px;
+    width: 2px;
+    display: inline-block;
+    animation: loadBlack 2.4s  infinite steps(1,start);
+  }
+  .load-blue {
+    height: 3px;
+    width: 3px;
+    display: inline-block;
+    animation: loadBlue 2.4s  infinite steps(1,start);
+  }
+  @keyframes loadBlack {
+    25%{
+      box-shadow: 2px 0 0 black;
+    }
+    50%{
+        box-shadow: 2px 0 0 black ,7px 0 0 black;
+    }
+    75%{
+        box-shadow: 2px 0 0 black ,7px 0 0 black, 12px 0 0 black;
+    }
+  }
+  @keyframes loadBlue {
+    25%{
+      box-shadow: 3px 0 0 rgb(var(--color-button));
+    }
+    50%{
+        box-shadow: 3px 0 0 rgb(var(--color-button)) ,8px 0 0 rgb(var(--color-button));
+    }
+    75%{
+        box-shadow: 3px 0 0 rgb(var(--color-button)) ,8px 0 0 rgb(var(--color-button)), 13px 0 0 rgb(var(--color-button));
+    }
+  }
+}
+
+/* 预留动态换肤(颜色必须是rgb值才能设置透明度不能是#fff) */
+@layer base {
+  :root{
+    --color-head: 0, 21, 41;
+    --color-content: 245, 245, 245;
+    --color-text: 0, 0, 0;
+    --color-theme: 127, 255, 0;
+    --color-button: 20, 237, 69;
+    --color-primary: 22, 119, 255
+  }
+}

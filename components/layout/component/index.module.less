@@ -1,0 +1,23 @@
+.logo{
+    color: rgb(var(--color-theme));
+    span {
+        display: inline-block;
+        text-shadow: 0px 0px 10px rgb(var(--color-theme));
+    }
+}
+@keyframes load {
+    0%{ transform: translateY(-10px); }
+    50%{ transform: translateY(0px); }
+    100%{ transform: translateY(-10px); }
+}
+.loop(@n, @i:1) when (@i<=@n) {
+    .sp@{i}{
+        animation-delay: (@i * 100ms);
+        animation-name: load;
+        animation-duration: 1s;
+        animation-timing-function:  ease-in-out;
+        animation-iteration-count: infinite;
+    }
+    .loop(@n,(@i+1));
+}
+.loop(16);

@@ -1,0 +1,37 @@
+.calc_200 {
+    width: calc(100% - 200px);
+}
+
+.calc_24 {
+    width: calc(100% - 24px);
+}
+.antd_button {
+    :global{
+        .ant-btn{
+            background-color: #1677ff;
+        }
+    }
+}
+
+.md {
+    padding: 24px;
+    ul{
+        list-style-type: disc;
+        li{
+            margin-left: 24px;
+        }
+    }
+    li::marker {
+        color: red;
+        font-size: 1em;
+    }
+    h5{
+        font-weight: bold;
+    }
+}
+
+.hover:hover{
+    .hover_show {
+        display: block;
+    }
+}
