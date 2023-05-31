@@ -1,6 +1,13 @@
 const express = require('express')
 const next = require('next')
 const { createProxyMiddleware } = require('http-proxy-middleware')
+const router = require('./api')
+
+const port = parseInt(process.env.PORT, 10) || 3000
+const dev = process.env.NODE_ENV !== 'production'
+const app = next({dev})
+const handle = app.getRequestHandler()
+const server = express()
 
 const devProxy = {
     '/api': {
@@ -14,26 +21,17 @@ const devProxy = {
     }
 }
 
-const port = parseInt(process.env.PORT, 10) || 3000
-const dev = process.env.NODE_ENV !== 'production'
-const app = next({
-    dev
-})
-const handle = app.getRequestHandler()
-
 app.prepare()
     .then(() => {
-        const server = express()
-        if (dev && devProxy) {
-            Object.keys(devProxy).forEach(function(context) {
-                server.use(createProxyMiddleware(context, devProxy[context]))
-            })
-        }
-
+        // if (dev && devProxy) {
+        //     Object.keys(devProxy).forEach(function(context) {
+        //         server.use(createProxyMiddleware(context, devProxy[context]))
+        //     })
+        // }
+        server.use(router)
         server.all('*', (req, res) => {
             handle(req, res)
         })
-
         server.listen(port, err => {
             if (err) {
                 throw err
@@ -42,6 +40,6 @@ app.prepare()
         })
     })
     .catch(err => {
-        console.log('发生错误，无法启动服务器')
+        console.log('发生错误，启动服务失败')
         console.log(err)
     })

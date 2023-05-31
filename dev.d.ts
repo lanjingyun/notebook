@@ -7,7 +7,7 @@ declare interface Window {
 }
 
 declare interface response {
-    status: boolean,
+    success: boolean,
     message: string,
     data?: any,
     [k: string]: any

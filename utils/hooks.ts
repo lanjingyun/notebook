@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react"
-import { throttle } from "."
+import { throttle } from "luxi-record-utils"
 
 function useOutClick(ref: React.RefObject<HTMLElement>, cb: () => void) {
     const listen = (e: MouseEvent) => {

@@ -26,10 +26,10 @@ module.exports = {
                 'over-more': 'calc(100% + 25px)'
             },
             minHeight: {
-                'screan-112': 'calc(100vh - 112px)'
+                'screan-64': 'calc(100vh - 64px)'
             },
             height: {
-                'screan-112': 'calc(100vh - 112px)'
+                'screan-64': 'calc(100vh - 64px)'
             },
             zIndex: { max: 9999 }
         },

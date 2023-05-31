@@ -1,59 +1,21 @@
-import { useEffect, useRef, useState, useMemo } from "react"
-import { downloadFile, getCookie, request } from "@/utils"
-import List from '@/public/images/list.svg'
-import LikeList from '@/public/images/likelist.svg'
-import Modify from '@/public/images/modify.svg'
+import { useEffect, useRef, useState } from "react"
+import { request } from "@/utils"
 import Question from '@/public/images/question.svg'
 import classNames from "classnames"
 import Transfer from "@/components/transfer"
 import s from '@/styles/index.module.less'
 import Tag from "@/components/tag"
-import { tags } from "@/utils/config"
+import { tags } from "@/utils"
 import Modal from "@/components/modal"
 import { message } from "@/components/message"
 import { Table, Input, Button } from 'antd'
-import Link from "next/link"
 import Layout from "@/components/layout"
-const menu = [
-    { name: '笔记列表', id: 0, Icon: () => <List /> },
-    { name: '收藏列表', id: 2, Icon: () => <LikeList /> },
-    { name: '修改评论', id: 3, Icon: () => <Modify /> }
-]
+
 const sourceTags = tags.map((i) => {
     return { key: i, title: i }
 })
 const { success, waring, error } = message()
 export default function Personal() {
-    const [active, setActive] = useState<number>(0)
-    useEffect(() => {
-        const auth = getCookie('AUTHID'), user = getCookie('UID')
-    }, [])
-    return (
-        <Layout>
-            <div className="relative min-h-screan-112">
-                <div className="absolute w-[200px] text-white bg-head h-full">
-                    {
-                        menu.map(({ name, id, Icon }) => {
-                            return (
-                                <div key={id} onClick={() => setActive(id)} className={classNames('px-4 py-2 flex items-center cursor-pointer border shadow-2xl', { 'text-theme border-theme bg-gradient-to-l from-theme-500': active === id }, { 'border-white border-opacity-10': active !== id })}>
-                                    <Icon />
-                                    <span className="ml-4">{name}</span>
-                                </div>
-                            )
-                        })
-                    }
-                </div>
-                <div className={classNames("absolute h-full p-6 ml-[200px] overflow-auto", s.calc_200)}>
-                    {active === 0 && <Notes />}
-                    {active === 1 && <AddNote />}
-                    {active === 2 && <Collection />}
-                </div>
-            </div>
-        </Layout>
-    )
-}
-// 我的笔记
-function Notes() {
     const cloumn = [
         { title: '笔记概述', dataIndex: 'desc', key: 'desc' },
         {
@@ -71,11 +33,9 @@ function Notes() {
             }
         },
         {
-            title: '笔记内容', dataIndex: 'fileName', render: (_, val) => {
+            title: '笔记内容', dataIndex: 'fileName', render: (val: string) => {
                 return (
-                    <Link href={`/blogs/${val._id}`}>
-                        <p className='block cursor-pointer hover:text-primary leading-6 text-justify'>{_}</p>
-                    </Link>
+                    <Button type="link" onClick={() => window.open(`/blogs?fileName=${val}`)}>{val}</Button>
                 )
             }
         },
@@ -86,11 +46,11 @@ function Notes() {
                         <span className={classNames("pr-2 border-r border-gray-300 inline-block relative", s.hover)}>
                             <span className="cursor-pointer text-primary">更多</span>
                             <ul className={classNames("absolute hidden bg-white py-1 px-3 z-10 rounded list-none shadow", s.hover_show)}>
-                                <li className="cursor-pointer my-1 hover:text-primary" onClick={() => update(val.desc, val._id)}>编辑概述</li>
-                                <li className="cursor-pointer my-1 hover:text-primary" onClick={() => uploadNote(val._id)}>笔记上传</li>
+                                <li className="cursor-pointer my-1 hover:text-primary" onClick={() => update(val.desc, val.fileName)}>编辑概述</li>
+                                <li className="cursor-pointer my-1 hover:text-primary" onClick={() => uploadNote(val.fileName)}>笔记上传</li>
                             </ul>
                         </span>
-                        <span className="cursor-pointer pl-2 text-[red]" onClick={() => deleteList(val._id)}>删除</span>
+                        <span className="cursor-pointer pl-2 text-[red]" onClick={() => deleteList(val.fileName)}>删除</span>
                     </div>
                 )
             }
@@ -108,8 +68,7 @@ function Notes() {
         getList()
     }, [])
     const getList = (params: Record<string, string> = {}) => {
-        const user = getCookie('UID')
-        request.get('/blog/personal', { data: { user, ...params } }).then((res) => {
+        request.get('/blogList', { data: { ...params } }).then((res) => {
             if (res.success) {
                 setData(res.data)
             } else {
@@ -117,8 +76,8 @@ function Notes() {
             }
         })
     }
-    const deleteList = (_id: string) => {
-        request.post('/blog/delete', { data: { _id } }).then((res) => {
+    const deleteList = (fileName: string) => {
+        request.post('/blogDelete', { data: { fileName } }).then((res) => {
             if (res.success) {
                 success('删除成功')
                 getList()
@@ -156,7 +115,7 @@ function Notes() {
         const data = new FormData()
         data.append('_id', updateID)
         data.append('file', file)
-        request.post('/blog/update', { data }).then((res) => {
+        request.post('/blogUpdate', { data }).then((res) => {
             if (res.success) {
                 success('编辑成功')
                 getList()
@@ -168,7 +127,7 @@ function Notes() {
     }
     const pushUpdate = () => {
         const params = { _id: updateID, desc: updateDesc }
-        request.post('/blog/update', { data: params }).then((res) => {
+        request.post('/blogUpdate', { data: params }).then((res) => {
             if (res.success) {
                 success('编辑成功')
                 getList()
@@ -179,38 +138,43 @@ function Notes() {
         })
     }
     return (
-        <div className="bg-white p-6 rounded">
-            <div className="text-center">
-                <span className="text-[24px] text-primary font-bold">我的笔记目录</span>
-                <i className="text-[14px] text-gray-400">(温故而知新)</i>
-            </div>
-            <div className={classNames("mt-6 text-right", s.antd_button)}>
-                <Input placeholder={'请输入笔记概述'} value={desc} style={{ width: 240 }} onChange={(e) => setDesc(e.target.value)} />
-                <Input placeholder={'请输入笔记标签'} value={tag} style={{ width: 240, margin: '0px 12px' }} onChange={(e) => setTag(e.target.value)} />
-                <Button type={'primary'} onClick={search} className="mr-3">查询</Button>
-                <Button type={'primary'} onClick={() => setShowAdd(true)} >新增</Button>
-            </div>
-            <div className="mt-6">
-                <Table columns={cloumn} dataSource={data} />
-            </div>
-            <input ref={ref} type={'file'} hidden onChange={fileChange} />
-            <Modal visiable={show} onClose={closeModal}>
-                <div className="bg-white p-6 rounded whitespace-nowrap">
-                    <p className="text-center text-lg font-semibold">编辑笔记概述</p>
-                    <textarea className="min-h-[74px] w-[400px] mt-6 block outline-none border border-gray-400 rounded p-1 max-h-[150px] flex-1" onChange={(e) => setUpdateDesc(e.target.value)} value={updateDesc} placeholder={'请输入笔记概述'} maxLength={150} />
-                    <div className="flex justify-center items-center mt-6">
-                        <Button type={'primary'} className="bg-primary mx-1" onClick={closeModal}>取消</Button>
-                        <Button type={'primary'} className="bg-primary mx-1" onClick={pushUpdate}>确认</Button>
+        <Layout>
+            <div className="relative min-h-screan-64">
+                <div className='p-6'>
+                    <div className="bg-white p-6 rounded">
+                        <div className="text-center">
+                            <span className="text-[24px] text-primary font-bold">我的笔记目录</span>
+                            <i className="text-[14px] text-gray-400">(温故而知新)</i>
+                        </div>
+                        <div className={classNames("mt-6 text-right", s.antd_button)}>
+                            <Input placeholder={'请输入笔记概述'} value={desc} style={{ width: 240 }} onChange={(e) => setDesc(e.target.value)} />
+                            <Input placeholder={'请输入笔记标签'} value={tag} style={{ width: 240, margin: '0px 12px' }} onChange={(e) => setTag(e.target.value)} />
+                            <Button type={'primary'} onClick={search} className="mr-3">查询</Button>
+                            <Button type={'primary'} onClick={() => setShowAdd(true)} >新增</Button>
+                        </div>
+                        <div className="mt-6">
+                            <Table columns={cloumn} dataSource={data} />
+                        </div>
+                        <input ref={ref} type={'file'} hidden onChange={fileChange} />
+                        <Modal visiable={show} onClose={closeModal}>
+                            <div className="bg-white p-6 rounded whitespace-nowrap">
+                                <p className="text-center text-lg font-semibold">编辑笔记概述</p>
+                                <textarea className="min-h-[74px] w-[400px] mt-6 block outline-none border border-gray-400 rounded p-1 max-h-[150px] flex-1" onChange={(e) => setUpdateDesc(e.target.value)} value={updateDesc} placeholder={'请输入笔记概述'} maxLength={150} />
+                                <div className="flex justify-center items-center mt-6">
+                                    <Button type={'primary'} className="bg-primary mx-1" onClick={closeModal}>取消</Button>
+                                    <Button type={'primary'} className="bg-primary mx-1" onClick={pushUpdate}>确认</Button>
+                                </div>
+                            </div>
+                        </Modal>
+                        <Modal visiable={addBox} onClose={() => setShowAdd(false)}>
+                            <AddNote />
+                        </Modal>
                     </div>
                 </div>
-            </Modal>
-            <Modal visiable={addBox} onClose={() => setShowAdd(false)}>
-                <AddNote />
-            </Modal>
-        </div>
+            </div>
+        </Layout>
     )
 }
-
 // 添加笔记
 function AddNote() {
     const upload = useRef<any>()
@@ -258,13 +222,12 @@ function AddNote() {
             waring('请添加笔记描述、标签和内容')
         } else {
             if (file.size === 0) return error('文件无内容')
-            const user = getCookie('UID')
             const data = new FormData()
             data.append('file', file)
             data.append('desc', desc)
             data.append('tag', tag)
-            data.append('user', user)
-            request.post('/blog/add', { data }).then((res) => {
+            data.append('fileName', file.name)
+            request.post('/blogAdd', { data }).then((res) => {
                 if (res.success) {
                     success({ message: '添加成功', onClose: () => reset() })
                 } else {
@@ -310,76 +273,5 @@ function AddNote() {
                 </div>
             </Modal>
         </div>
-    )
-}
-
-// 我的收藏
-interface task { (): Promise<any> }
-function Collection() {
-    const pools = []
-    function deepCopy(obj, map = new WeakMap()) {
-        if (typeof obj != 'object') return
-        var newObj = Array.isArray(obj) ? [] : {}
-        if (map.get(obj)) {
-            return map.get(obj);
-        }
-        map.set(obj, newObj);
-        for (var key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                if (typeof obj[key] == 'object') {
-                    newObj[key] = deepCopy(obj[key], map);
-                } else {
-                    newObj[key] = obj[key];
-                }
-            }
-        }
-        return newObj;
-    }
-    const deepClone = (obj) => {
-        // 定义一个映射，初始化的时候将 obj 本身加入映射中
-        const map = new WeakMap()
-        map.set(obj, true)
-        // 封装原来的递归逻辑
-        const copy = (obj) => {
-            if (!obj || typeof obj !== 'object') {
-                return {}
-            }
-            const newObj = Array.isArray(obj) ? [] : {}
-            for (const key in obj) {
-                const value = obj[key]
-                // 如果拷贝的是简单类型的值直接进行赋值
-                if (typeof value !== 'object') {
-                    newObj[key] = value
-                } else {
-                    // 如果拷贝的是复杂数据类型第一次拷贝后存入 map
-                    // 第二次再次遇到该值时直接赋值为 null，结束递归
-                    if (map.has(value)) {
-                        newObj[key] = null
-                    } else {
-                        map.set(value, true)
-                        newObj[key] = copy(value)
-                    }
-                }
-            }
-            return newObj
-        }
-        return copy(obj)
-    }
-    const run = () => {
-        const seven: any = {
-            name: 'seven',
-            fn: () => { }
-        }
-        const juejin = {
-            name: 'juejin',
-            relative: seven
-        }
-        seven.relative = juejin
-        const res: any = deepCopy(seven)
-        res.a = 2
-        console.log(res, seven)
-    }
-    return (
-        <button onClick={run}>执行</button>
     )
 }

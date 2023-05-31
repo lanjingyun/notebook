@@ -15,7 +15,7 @@ export default function Home() {
         getList()
     }, [])
     const getList = () => {
-        request.get('/blog/list').then((res) => {
+        request.get('/blogList').then((res) => {
             if (res.success) {
                 const { data } = res
                 setList(data)
@@ -50,7 +50,7 @@ export default function Home() {
                                                 bodyStyle={{ padding: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
                                                 <div className='min-h-[4rem] max-w-[40rem] px-6 pt-3'>{item.desc}</div>
                                                 <div className='border-t border-[#f0f0f0] flex flex-row-reverse items-center px-6 py-2 mt-1'>
-                                                    <span className='flex justify-center items-center cursor-pointer' onClick={() => window.open(`/blogs/${item._id}`)}>
+                                                    <span className='flex justify-center items-center cursor-pointer' onClick={() => window.open(`/blogs?fileName=${item.fileName}`)}>
                                                         <Forward />
                                                         <span className='text-theme ml-1'>详情</span>
                                                     </span>

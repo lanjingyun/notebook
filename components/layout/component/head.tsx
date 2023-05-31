@@ -7,9 +7,9 @@ import { useEffect, useState } from "react"
 const title = '每一天都记录，每一次记录都是进步'
 export default function Header() {
     const menu = [
-        { title: '笔记广场', path: '/' },
-        { title: '我的笔记', path: '/personal' },
-        { title: '帅气博主', path: '/owner' },
+        { title: '笔记卡片', path: '/' },
+        { title: '笔记目录', path: '/personal' },
+        { title: '个人介绍', path: '/owner' },
     ]
     const [active, setActive] = useState<string>('/')
     useEffect(() => {
