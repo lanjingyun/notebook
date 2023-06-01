@@ -35,7 +35,7 @@ export default function Personal() {
         {
             title: '笔记内容', dataIndex: 'fileName', render: (val: string) => {
                 return (
-                    <Button type="link" onClick={() => window.open(`/blogs?fileName=${val}`)}>{val}</Button>
+                    <span className={s.link} onClick={() => window.open(`/blogs?fileName=${val}`)}>{val}</span>
                 )
             }
         },
@@ -113,7 +113,7 @@ export default function Personal() {
     const fileChange = (e) => {
         const file = e.target.files[0]
         const data = new FormData()
-        data.append('_id', updateID)
+        data.append('fileName', updateID)
         data.append('file', file)
         request.post('/blogUpdate', { data }).then((res) => {
             if (res.success) {
@@ -126,7 +126,7 @@ export default function Personal() {
         })
     }
     const pushUpdate = () => {
-        const params = { _id: updateID, desc: updateDesc }
+        const params = { fileName: updateID, desc: updateDesc }
         request.post('/blogUpdate', { data: params }).then((res) => {
             if (res.success) {
                 success('编辑成功')

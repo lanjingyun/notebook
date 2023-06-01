@@ -4,11 +4,9 @@ export default function handler(req, res) {
     const arr = readFileSync('./blogList.txt').toString().split('\r\n')
     let data
     arr.forEach((str) => {
-        if(str) {
-            const list = JSON.parse(str)
-            if(list.fileName === fileName) {
-                data = readFileSync(`./blogFile/${fileName}`).toString()
-            }
+        const list = str && JSON.parse(str)
+        if (list?.fileName === fileName) {
+            data = readFileSync(`./blogFile/${fileName}`).toString()
         }
     })
     const result = {
