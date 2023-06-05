@@ -51,7 +51,9 @@ offsetHeight/offsetWidth：height/width + (padding-top + padding-bottom)/(paddin
 
 **offsetTop/offsetLeft**
 
-分别代表盒子距离**浏览器视口**上边和左边的距离，而不是文档根元素
+分别代表盒子距离**offsetParent(类似父元素)**上边和左边的距离，而不是文档根元素。
+
+***`offsetParent`** 是一个只读属性，返回一个指向最近的（指包含层级上的最近）包含该元素的定位元素或者最近的 `table`, `td`, `th`, `body` 元素。当元素的 `style.display` 设置为 "none" 时*
 
 **scrollTop/scrollLeft**
 
